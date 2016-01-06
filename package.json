@@ -1,5 +1,5 @@
 {
-  "name": "powerchord-conductor",
+  "name": "forte-conductor",
   "private": true,
   "verson": "1.0.0.0",
   "description": "Compose data for components inspired by Facebook Relay.",
