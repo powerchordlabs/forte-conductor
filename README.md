@@ -3,7 +3,21 @@
 TODO: build this readme  
 TODO: migrate existing codebase to this repo
 
-### original notes
+## API
+
+### Methods
+
+#### Conductor.query(resource)
+
+Returns a new ConductorQuery.
+
+#### Conductor.getQuery(component)
+
+#### Conductor.parseQuery(conductorQuery, values) 
+
+#### Conductor.composeResponse(CompositePlan, compositeData)
+
+## Original notes
 
 CONDUCTOR (powerchordinc/conductor)
 * add ConductorContainer component

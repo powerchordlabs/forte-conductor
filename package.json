@@ -1,0 +1,18 @@
+{
+  "name": "powerchord-conductor",
+  "private": true,
+  "verson": "1.0.0.0",
+  "description": "Compose data for components inspired by Facebook Relay.",
+  "author": "Powerchord, Inc",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jasmine JASMINE_CONFIG_PATH=test/jasmine.json"
+  },
+  "dependencies": {
+    "object.assign": "^3.0.0"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.2",
+    "jasmine-reporters": "^2.0.7"
+  }
+}
