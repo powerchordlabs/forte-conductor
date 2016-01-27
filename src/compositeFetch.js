@@ -32,6 +32,8 @@ function fetch(api, query, queryParams, options){
 		// remove plan items that are currently cached
 		let fetchPlan = Conductor.parseQuery(staleQueries, queryParams)
 
+		return resolve('TODO')
+
 		api.composite.query(fetchPlan.request)
 			.then(response => {
 				// merge items in to cache...

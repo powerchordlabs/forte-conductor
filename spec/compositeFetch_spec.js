@@ -1,0 +1,3 @@
+describe('compositeFetch', () => {
+	it('test')
+})
