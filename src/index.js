@@ -1,6 +1,7 @@
-var ConductorQuery = require('./conductorQuery');
-var CompositePlan = require('./compositePlan');
-var Composer = require('./composer');
+import ConductorQuery from './conductorQuery'
+import CompositePlan from './compositePlan'
+import Composer from './composer'
+import CompositeFetch from './compositeFetch'
 
 module.exports = new Conductor();
 
@@ -55,4 +56,8 @@ Conductor.prototype.parseQuery = function(conductorQuery, values) {
 **/
 Conductor.prototype.composeResponse = function(CompositePlan, compositeData) {
   return Composer(CompositePlan, compositeData);
+}
+
+Conductor.prototype.fetch = function(query, queryParams, options) {
+  return CompositeFetch(this._api, query, queryParams, options)
 }

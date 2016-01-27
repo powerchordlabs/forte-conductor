@@ -1,6 +1,6 @@
-var Conductor = require('../src/');
-var util = require('util');
-var time = require('../src/time')
+import Conductor from '../src/'
+import util from 'util'
+import time from '../src/time'
 
 describe('ConductorQuery', function() {
 

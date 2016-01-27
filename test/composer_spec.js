@@ -1,4 +1,4 @@
-var Composer = require('../src/composer');
+import Composer from '../src/composer'
 
 describe('Composer', function() {
   it('exists within the spec suite', function() {

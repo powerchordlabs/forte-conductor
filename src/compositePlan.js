@@ -1,4 +1,4 @@
-module.exports = CompositePlan;
+export default CompositePlan;
 /**
  * CompositeDataPlan computes a plan that can be sent to the server to obtain
  * multiple resources via a composite API. The generated plan deduplicates

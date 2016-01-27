@@ -1,4 +1,4 @@
-var time = require('../src/time');
+import time from '../src/time'
 
 describe('time', function() {
   it('exports interval props', function() {

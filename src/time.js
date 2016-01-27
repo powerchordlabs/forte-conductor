@@ -1,5 +1,5 @@
 // simple time abstraction for ease of use when using ConductorQuery.cache()
-module.exports = {
+export default {
 	milliseconds: 1,
 	seconds: 1000,
 	minutes: 60000,

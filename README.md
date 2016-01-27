@@ -7,6 +7,18 @@ TODO: migrate existing codebase to this repo
 
 ### Methods
 
+#### Conductor.fetch(query[, options]) : {promise (composedResponse) => {}}
+
+* `query: {ConductorQuery}`  
+The query to parse, fetch and compose a response for.  
+* `options: {object}`  
+  * `cacheEnabled: {bool}`  
+  Controls whether queries with a `.Cache()` setting are actually cached. This is useful for turning off caching globally on the server/client.  
+  `default: true`  
+  * `cachePrefix: {string}`  
+  Adds a cache prefix to all cache entries.  
+  `default: ''`  
+
 #### Conductor.query(resource)
 
 Returns a new ConductorQuery.
@@ -15,7 +27,8 @@ Returns a new ConductorQuery.
 
 #### Conductor.parseQuery(conductorQuery, values) 
 
-#### Conductor.composeResponse(CompositePlan, compositeData)
+#### Conductor.composeResponse(CompositePlan, compositeData) : {object}
+
 
 ## Original notes
 

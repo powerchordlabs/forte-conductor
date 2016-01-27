@@ -1,5 +1,5 @@
-var Conductor = require('../src/index');
-var CompositePlan = require('../src/compositePlan');
+import Conductor from '../src/index'
+import CompositePlan from '../src/compositePlan'
 
 describe('CompositePlan', function() {
   describe('parseQuery method', function() {
@@ -35,7 +35,7 @@ describe('CompositePlan', function() {
       expect(plan.cartoons).toEqual(jasmine.any(Array));
       expect(plan.cartoons.length).toBe(1);
       expect(plan.cartoons[0]).toEqual(jasmine.objectContaining({
-        plan: {params: {}, singular: false},
+        plan: {params: {}, singular: false, cache: 0},
         conduit: [ ['foobar'] ],
       }));
     });
@@ -52,7 +52,7 @@ describe('CompositePlan', function() {
         }).composition;
 
         var expected = {
-          plan: {params: {}, singular: false},
+          plan: {params: {}, singular: false, cache: 0},
           conduit: [ ['a'], ['b'] ],
         };
 
@@ -91,7 +91,7 @@ describe('CompositePlan', function() {
           },
         });
 
-        plan = p.composition;
+        let plan = p.composition;
 
         // How many resources?
         expect(Object.keys(plan).length).toEqual(2);
@@ -104,7 +104,7 @@ describe('CompositePlan', function() {
         expect(plan.thriller.length).toBe(1);
 
         expect(plan.thriller).toEqual(jasmine.objectContaining([{
-          plan: {params: {top: 10}, singular: false},
+          plan: {params: {top: 10}, singular: false, cache: 0},
           conduit: [ ['screen', 'thrillers'] ],
         }]));
 
@@ -114,16 +114,16 @@ describe('CompositePlan', function() {
           // Above, we asked for this same exact thing twice
           // The request exists only once but the conduit records the
           // two seperate requests.
-          plan: {params: {top: 10}, singular: false},
+          plan: {params: {top: 10}, singular: false, cache: 0},
           conduit: [
             ['layout', 'nested', 'deeplyNested', 'cartoons'],
             ['screen', 'cartoons']
           ]
         }, {
-          plan: {params: {top: 5, color: false}, singular: false},
+          plan: {params: {top: 5, color: false}, singular: false, cache: 0},
           conduit: [['layout', 'nested', 'deeplyNested', 'blackAndWhite']]
         }, {
-          plan: {params: {top: 10, old: true}, singular: false},
+          plan: {params: {top: 10, old: true}, singular: false, cache: 0},
           conduit: [ [ 'screen', 'oldCartoons' ] ]
         }]));
       }
@@ -142,19 +142,19 @@ describe('CompositePlan', function() {
         expect(plan.cartoons).toEqual(jasmine.any(Array));
         expect(plan.cartoons.length).toBe(1);
         expect(plan.cartoons[0]).toEqual(jasmine.objectContaining({
-          plan: {params: {name: 'x-men'}, singular: false},
+          plan: {params: {name: 'x-men'}, singular: false, cache: 0},
           conduit: [['query']],
         }));
       }
     );
 
-    it('returns a plan built using deeply nested queries', function() {
+    describe('returns a plan built using deeply nested queries', function() {
       //
       // The following composition of queries...
       //
       var q = {
         screen: {
-          productCategoryList: Conductor.query('product-categories').params({isRoot: true})
+          productCategoryList: Conductor.query('product-categories').params({isRoot: true}).cache(5)
         },
         layout: {
           footer: {
@@ -174,37 +174,56 @@ describe('CompositePlan', function() {
       // Should result in plan composition such as...
       //
       var expectedComposition = {
-        'product-categories': [{
-          plan: {params: {isRoot: true}, singular: false},
-          conduit: [
-            ['screen', 'productCategoryList'],
-            ['layout', 'header', 'primaryNavigation', 'productCateogyList']
-          ]}
+        'product-categories': [
+          {
+            plan: {params: {isRoot: true}, singular: false, cache: 5000},
+            conduit: [
+              ['screen', 'productCategoryList'],
+            ]
+          },
+          {
+            plan: {params: {isRoot: true}, singular: false, cache: 0},
+            conduit: [
+              ['layout', 'header', 'primaryNavigation', 'productCateogyList']
+            ]
+          }
         ],
         content: [{
-          plan: {params: {key: 'news'}, singular: true},
+          plan: {params: {key: 'news'}, singular: true, cache: 0},
           conduit: [['layout', 'footer', 'news']]
         }, {
-          plan: {params: {key: 'newsletter'}, singular: true},
+          plan: {params: {key: 'newsletter'}, singular: true, cache: 0},
           conduit: [['layout', 'footer', 'newsletter']]
         }],
         locations: [{
-          plan: {params: {isPimary: true}, singular: true},
+          plan: {params: {isPimary: true}, singular: true, cache: 0},
           conduit: [['layout', 'footer', 'primaryLocation']]
         }, {
-          plan: {params: {}, singular: false},
+          plan: {params: {}, singular: false, cache: 0},
           conduit: [['layout', 'header', 'primaryNavigation', 'locations']]
         }]
       };
 
       var plan = CompositePlan(q);
 
-      expect(Object.keys(plan).length).toBe(2);
-      expect(typeof plan.composition).toBe('object');
-      expect(typeof plan.request).toBe('object');
+      it('and has a plan with two properties', function(){
+        expect(Object.keys(plan).length).toBe(2);
+      })
 
-      var composition = plan.composition;
-      expect(composition).toEqual(jasmine.objectContaining(expectedComposition));
+      it('and has a plan with a composition property', function(){
+        expect(typeof plan.composition).toBe('object');
+      })
+
+      it('and has a plan with a request property', function(){
+        expect(typeof plan.request).toBe('object');
+      })
+
+      it('and has the expected composition structure', function(){
+        var composition = plan.composition;
+        //console.log('composition:', JSON.stringify(composition))
+        //console.log('expectedComposition:', JSON.stringify(expectedComposition))
+        expect(composition).toEqual(jasmine.objectContaining(expectedComposition));
+      })
 
     });
 
@@ -228,7 +247,8 @@ describe('CompositePlan', function() {
         expect(plan1.request).toEqual(jasmine.objectContaining({
           dogs: [{
             params: {dogName: 'sansa'},
-            singular: false
+            singular: false,
+            cache: 0
           }]
         }));
 
@@ -250,7 +270,8 @@ describe('CompositePlan', function() {
         expect(plan2.request).toEqual(jasmine.objectContaining({
           dogs: [{
             params: {dogName: 'misu'},
-            singular: false
+            singular: false,
+            cache: 0
           }]
         }));
       }

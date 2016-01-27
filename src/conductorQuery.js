@@ -1,7 +1,6 @@
-var assign = Object.assign || require('object.assign');
-var time = require('./time')
+import time from './time'
 
-module.exports = ConductorQuery;
+export default ConductorQuery
 
 /**
  * ConductorQuery constructs a new ConductorQuery for the resource specified.
@@ -37,7 +36,7 @@ ConductorQuery.prototype.params = function(params) {
   // It's important to determine if we need to do much work at all.
   if (params && typeof params == "object" && Object.keys(params).length > 0) {
     this._paramsRequested = true;
-    this._params = assign({}, params);
+    this._params = {...params};
   }
 
   return this;
@@ -72,7 +71,7 @@ ConductorQuery.prototype.getParams = function() {
  * instead of an array of resources.
  */
 ConductorQuery.prototype.getPlan = function(values) {
-  var params = assign({}, this.getParams());
+  var params = {...this.getParams()}
 
   if (values && typeof values == 'object' && Object.keys(values).length > 0) {
     // Duplicate our params so that we can manipulate them without impacting
@@ -100,7 +99,8 @@ ConductorQuery.prototype.getPlan = function(values) {
     resource: this._resource,
     plan: {
       params: params,
-      singular: this._singular
+      singular: this._singular,
+      cache: this._cacheMilliseconds
     }
   };
 }
