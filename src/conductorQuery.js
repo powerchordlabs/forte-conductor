@@ -1,4 +1,5 @@
 var assign = Object.assign || require('object.assign');
+var time = require('./time')
 
 module.exports = ConductorQuery;
 
@@ -13,6 +14,7 @@ function ConductorQuery(resource) {
   this._paramsRequested = false;
   this._params = {};
   this._singular = false;
+  this._cacheMilliseconds = 0;
 
   return this;
 }
@@ -101,4 +103,23 @@ ConductorQuery.prototype.getPlan = function(values) {
       singular: this._singular
     }
   };
+}
+
+/**
+ * Sets the cache duration for this query.
+ * @param {object} duration The duration to cache this query
+ * @param {object} interval The interval, in milliseconds, to calculate the cache duration. 
+ * You can use Conductor.time properties for ease of use: e.g. <code>query.cache(5, time.seconds)</code>
+ * Default: time.seconds
+ */
+ConductorQuery.prototype.cache = function(duration, interval) {
+  // require duration, and undefined or valid interval...
+  if(typeof duration === 'number' && (!interval || typeof interval === 'number')){
+    // set interval default if undefined
+    if(!interval) { interval = time.seconds }
+
+    this._cacheMilliseconds = Math.floor(duration*interval)
+  }
+  
+  return this;
 }

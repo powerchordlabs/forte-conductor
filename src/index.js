@@ -3,6 +3,7 @@ var CompositePlan = require('./compositePlan');
 var Composer = require('./composer');
 
 module.exports = new Conductor();
+
 function Conductor() {};
 
 /**

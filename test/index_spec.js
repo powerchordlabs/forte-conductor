@@ -4,7 +4,7 @@ describe('Conductor', function() {
   it('exists within the spec suite', function() {
     expect(Conductor).toEqual(jasmine.any(Object));
   });
-
+  
   it('can create a query without defining a resource', function() {
     var q = Conductor.query();
 
