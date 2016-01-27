@@ -4,7 +4,7 @@
   "verson": "1.0.0.0",
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
-  "main": "src/index.js",
+  "main": "lib/index",
   "scripts": {
     "build": "babel -d lib/ src/",
     "test": "jasmine JASMINE_CONFIG_PATH=test/jasmine.json",
