@@ -2,8 +2,11 @@ import ConductorQuery from './conductorQuery'
 import CompositePlan from './compositePlan'
 import Composer from './composer'
 import CompositeFetch from './compositeFetch'
+import Debug from 'debug'
 
-module.exports = new Conductor();
+const debug = Debug('forte-conductor')
+
+export default new Conductor();
 
 function Conductor() {};
 
@@ -58,6 +61,12 @@ Conductor.prototype.composeResponse = function(CompositePlan, compositeData) {
   return Composer(CompositePlan, compositeData);
 }
 
+Conductor.prototype.setApi = function(api) {
+	this._api = api;
+	debug('setApi:', api)
+}
+
 Conductor.prototype.fetch = function(query, queryParams, options) {
-  return CompositeFetch(this._api, query, queryParams, options)
+
+ 	return CompositeFetch(this._api, query, queryParams, options)
 }

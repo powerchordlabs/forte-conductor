@@ -1,3 +1,6 @@
+import Debug from 'debug'
+const debug = Debug('forte-conductor')
+
 export default CompositePlan;
 /**
  * CompositeDataPlan computes a plan that can be sent to the server to obtain
@@ -15,9 +18,7 @@ export default CompositePlan;
  * could not be generated.
  **/
 function CompositePlan(conductorQuery, values) {
-  if (!conductorQuery
-    || typeof conductorQuery != 'object'
-    || Object.keys(conductorQuery).length == 0) {
+  if (!conductorQuery || typeof conductorQuery != 'object' || Object.keys(conductorQuery).length == 0) {
     return null;
   }
 

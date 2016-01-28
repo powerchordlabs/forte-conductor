@@ -1,3 +1,8 @@
+import Conductor from './'
+import Debug from 'debug'
+
+const debug = Debug('forte-conductor')
+
 export default fetch;
 
 var defaultOptions = {
@@ -6,27 +11,31 @@ var defaultOptions = {
 }
 
 function getCacheState(plan, cachePrefix) {
-	let cachedResults = {}
-	let staleQueries = {}
+	let cachedResults = {locations: [{id:1}]}
+	let staleQueries = []
 	return { cachedResults, staleQueries }
 }
 
 function fetch(api, query, queryParams, options){
+	debug('fetch arguments:', api, query, queryParams, options)
 	// validate args
 
 	options = {...defaultOptions, ...options}
 
 	return new Promise((resolve, reject) => {
-		let mergedQuery = Conductor.getQuery(query, queryParams)
-		let compositePlan = Conductor.parseQuery(mergedQuery, queryParams)
+		let compositePlan = Conductor.parseQuery(query, queryParams)
+		debug('compositePlan', compositePlan)
 
 		// check plan against cache...
-		let { cachedResults, staleQueries } = getCacheState(compositePlan, cachePrefix)
+		let { cachedResults, staleQueries } = getCacheState(compositePlan, options.cachePrefix)
+		debug('getCacheState', cachedResults, staleQueries)
 
 		// if all items are cached, return them and get out fast
 		if(staleQueries.length === 0){
+			debug('all cached')
 			let composedResponse = Conductor.composeResponse(compositePlan, cachedResults)
-			return resolve(composeResponse)
+			debug('all composedResponse', composedResponse)
+			return resolve(composedResponse)
 		}
 
 		// remove plan items that are currently cached

@@ -19,5 +19,8 @@
     "istanbul": "^0.4.2",
     "jasmine": "^2.3.2",
     "jasmine-reporters": "^2.0.7"
+  },
+  "dependencies": {
+    "debug": "^2.2.0"
   }
 }
