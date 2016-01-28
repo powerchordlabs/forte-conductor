@@ -3,31 +3,45 @@ import Debug from 'debug'
 
 const debug = Debug('forte-conductor')
 
-describe('Conductor.fetch', () => {
-	let api = {
+const apiMockFactory = (result) => {
+	return {
 		composite: {
 			query: query => 
 			{
-				return {}
+				return new Promise((resolve, reject) => {
+					return resolve(result || {})
+				})
 			}
 		}
 	}
+}
 
-	beforeEach(() => {
-		Conductor.setApi(api)
-	})
+describe('Conductor.fetch', () => {
 
-	it('validates arguments', (done) => {
+	it('validates arguments')
+
+	it('fetches items from the api', (done) => {
 		let options = {
 			cachePrefx: '',
 			cacheEnabled: true
 		}
 
-		let query = { locations: Conductor.query('locations').params({ status: ':status'}).one() }
+		let apiClient = apiMockFactory()
+		let query = { locations: Conductor.query('locations').params({ _status: ':status'}).one() }
 		let params = { status: 'active'}
 
-		Conductor.fetch(query, params, options).then(response => {
-			expect(response).toEqual({locations: {id:1}})
+		spyOn(apiClient.composite, 'query').and.callThrough()
+
+		Conductor.fetch(apiClient, query, params, options).then(response => {
+			let expectedApiRequest = {
+				locations: [{
+					params: { _status: 'active'},
+					singular: true,
+					cache: 0
+				}]
+			}
+
+			expect(apiClient.composite.query).toHaveBeenCalledWith(expectedApiRequest)
 			done()
 		}, err => {
 			done.fail(err)
@@ -36,6 +50,7 @@ describe('Conductor.fetch', () => {
 
 	it('fetches all items from api when cache is empty')
 	it('fetches only uncached items from api')
+
 	// check plan against cache...
 	// if all items are cached, return them and get out fast
 	// remove plan items that are currently cached

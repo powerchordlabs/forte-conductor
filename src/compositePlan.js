@@ -1,5 +1,5 @@
 import Debug from 'debug'
-const debug = Debug('forte-conductor')
+const debug = require('debug')('forte-conductor:CompositePlan')
 
 export default CompositePlan;
 /**
@@ -18,6 +18,8 @@ export default CompositePlan;
  * could not be generated.
  **/
 function CompositePlan(conductorQuery, values) {
+  //debug('CompositePlan', conductorQuery, values)
+
   if (!conductorQuery || typeof conductorQuery != 'object' || Object.keys(conductorQuery).length == 0) {
     return null;
   }
@@ -42,6 +44,8 @@ function CompositePlan(conductorQuery, values) {
  * composite API handler.
  */
 function parseCompositeRequest(compositionPlan) {
+  //debug('parseCompositeRequest', compositionPlan)
+
   var compositeRequest = {};
 
   for (var resource in compositionPlan) {
@@ -81,6 +85,7 @@ function parseCompositeRequest(compositionPlan) {
  * should not be provided by a external caller.
  */
 function parseQuery(conductorQuery, values, CompositePlan, conduit) {
+  //debug('parseQuery',  conductorQuery, values, CompositePlan, conduit)
 
   if (!conductorQuery || typeof conductorQuery != "object") {
     return null;

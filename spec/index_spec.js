@@ -1,11 +1,11 @@
 import Conductor from '../src/'
 
-describe('Conductor', function() {
-  it('exists within the spec suite', function() {
+describe('Conductor', () => {
+  it('exists within the spec suite', () => {
     expect(Conductor).toEqual(jasmine.any(Object));
   });
 
-  it('can create a query without defining a resource', function() {
+  it('can create a query without defining a resource', () => {
     var q = Conductor.query();
 
     expect(q).toEqual(jasmine.any(Object));
@@ -13,7 +13,7 @@ describe('Conductor', function() {
     expect(q._resourceDefined).toBe(false);
   });
 
-  it('can create a query with a defined resource', function() {
+  it('can create a query with a defined resource', () => {
     var q = Conductor.query('cartoons');
 
     expect(typeof q).toBe('object');
