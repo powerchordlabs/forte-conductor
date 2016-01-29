@@ -1,5 +1,6 @@
 import Conductor from '../src'
 import Debug from 'debug'
+import cache from 'memory-cache'
 
 const debug = Debug('forte-conductor')
 
@@ -34,6 +35,9 @@ describe('Conductor.fetch', () => {
 		let params = { status: 'active'}
 
 		spyOn(apiClient.composite, 'query').and.callThrough()
+
+		// temp futz with cache...
+		cache.put('1716976019', {say:"hello"}, 5000)
 
 		Conductor.fetch(apiClient, query, params, options).then(response => {
 			let expectedApiRequest = {
