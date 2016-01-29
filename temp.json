@@ -1,0 +1,100 @@
+{
+  request: {
+    locations: [
+      {
+        params: {
+          
+        },
+        singular: true,
+        cache: 0
+      },
+      {
+        params: {
+          
+        },
+        singular: false,
+        cache: 0
+      },
+      {
+        params: {
+          
+        },
+        singular: true,
+        cache: 5000
+      },
+      
+    ],
+    content: [
+      {
+        params: {
+          
+        },
+        singular: true,
+        cache: 0
+      },
+      {
+        params: {
+          
+        },
+        singular: false,
+        cache: 0
+      },
+      {
+        params: {
+          
+        },
+        singular: true,
+        cache: 5000
+      },
+      
+    ]
+  },
+  cacheKeyMap: {
+    "locations": [
+      "1095404739",
+      "-818954714",
+      "1095404739"
+    ],
+    "content": [
+      "-517650168",
+      "715950721",
+      "-517650168"
+    ]
+  },
+  cacheMap: {
+    "locations": [
+      {
+        "key": "1095404739",
+        "value": "TODO:1095404739",
+        "duration": 0
+      },
+      {
+        "key": "-818954714",
+        "value": "TODO:-818954714",
+        "duration": 0
+      },
+      {
+        "key": "1095404739",
+        "value": "TODO:1095404739",
+        "duration": 5000
+      }
+    ],
+    "content": [
+      {
+        "key": "-517650168",
+        "value": "TODO:-517650168",
+        "duration": 0
+      },
+      {
+        "key": "715950721",
+        "value": "TODO:715950721",
+        "duration": 0
+      },
+      {
+        "key": "-517650168",
+        "value": "TODO:-517650168",
+        "duration": 5000
+      }
+    ]
+  }
+}
