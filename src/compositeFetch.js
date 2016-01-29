@@ -22,11 +22,11 @@ function fetch(api, query, queryParams, options){
 		debug('compositePlan\n%j\n', compositePlan)
 
 		// 1. get existing cachedResults, with nulls for new or expired queries
-		let cachedResults = getCacheState(compositePlan, options.cachePrefix)
-		debug('getCacheState\n%j\n', cachedResults, staleQueries)
+		let cacheMap = buildCacheMap(compositePlan.request, options.cachePrefix)
+		debug('cacheMap\n%j\n', cacheMap)
 
 		// 2. if all items are cached, return them and get out fast
-		if(!requiresFetch(cachedResults)){
+		if(!cacheMap.hasExpiredItems){
 			debug('all items resolved from cache')
 			let composedResponse = Conductor.composeResponse(compositePlan, cachedResults)
 			return resolve(composedResponse)
@@ -57,76 +57,6 @@ function fetch(api, query, queryParams, options){
 }
 
 
-/*
- * Builds a map of api result indexes to cacheResults indexes.
- * Given a cacheResults of: { locations: [null, 1, null], content: [1,null,1] }
- * 
- * this method would return: { locations: [0,2], content: [1] }
- * 
- * indicating where actual api fetch reults indices should merge in to the cacheResults
- */
-function buildApiResultMap(cacheResults) {
-	let resourceKeys = Object.keys(cacheResults)
-	let apiResultMap = {}
-
-	// build result map
-	resourceKeys.map(key => {
-	  apiResultMap[key] = cacheResults[key].map((item, index) => {
-	    return !item && index
-	  }).filter(i => typeof i === 'number')
-	})
-
-	debug('apiResultMap', apiResultMap)
-	return apiResultMap
-}
-
-function mergeApiResults(cachedResults, apiResults) {
-	let resourceKeys = Object.keys(cacheResults)
-
-	debug('mergeApiResults:cacheResults:premerge', cacheResults)
-
-	resourceKeys.map(key => {
-	  apiResults[key].map(function(item, index){
-	    let mapIndex = apiResultMap[key][index]
-	    cacheResults[key][mapIndex] = item
-	    return !item && index
-	  })
-	})
-
-	debug('mergeApiResults:cacheResults:postmerge', cacheResults)
-}
-
-function getCacheState(plan, cachePrefix) {
-	debug('getCacheState.arguments\n%j\n', plan, cachePrefix)
-	
-	let { request } = plan
-
-	let cacheQueries = Object.keys(request).map(key => {
-		let resource = request[key]
-		resource.map(q => {
-			return q.cache > 0;
-		})
-	})
-
-	debug('cacheQueries:', cacheQueries)
-
-	let cachedResults = {locations: [{id:1}]}
-
-	return cachedResults
-}
-
-function requiresFetch(cache) {
-  let resources = Object.keys(cache).map(key => cache[key])
-  
-  for (var resource of resources) {
-    // get out the moment we find null or undefined
-    if(!resource.every(r => r != null)) {
-      return true
-    }
-  }
-
-  return false
-}
 
 // generates a numeric hash code for the specified value
 let getHashCode = function(value){
@@ -149,21 +79,81 @@ function getCacheKey(resource, query, prefix) {
 
 // returns a clone of the request with the queries replaced
 // with an object of their corresponding cache keys, values and durations
-function buildCacheMap(request, salt) {
+function buildCacheMap(request, cachePrefix) {
+  let hasExpiredItems = false
   let map = {}
+  let results = {}
   let resourceKeys = Object.keys(request)
   
   resourceKeys.forEach(resource => {
     map[resource] = []
+    results[resource] = []
+    
     request[resource].forEach(query => {
-      let cacheKey = getCacheKey(resource, query, salt).toString()
+      let cacheKey = getCacheKey(resource, query, cachePrefix).toString()
+      let cacheValue = cache.get(cacheKey)
+      
+      // clone mutable objects
+      cacheValue = isPrimitive(cacheValue) ? cacheValue : {...cacheValue}
+      if(cacheValue === null) {
+        hasExpiredItems = true
+      }
+      
       map[resource].push({ 
         key: cacheKey, 
-        value: cache.get(cacheKey), 
-        duration: query.cache
+        //value: cacheValue, 
+        duration: query.cache,
+        wasCached: cacheValue != null,
+        cacheable: query.cache > 0
       })
+      
+      results[resource].push(cacheValue)
     })
   })
   
-  return map
+  return { hasExpiredItems, map, results }
+}
+
+/*
+ * Builds a map of api result indexes to cacheMap indexes.
+ * Given a cacheMap of: { locations: [{value:null}, {value:1}, {value:null}]}
+ * 
+ * this method would return: { locations: [0,2] }
+ * 
+ * indicating where actual api fetch reults indices should merge in to the cacheMap
+ */
+function buildApiResultMap(cacheMap) {
+	let resourceKeys = Object.keys(cacheMap)
+	let apiResultMap = {}
+
+	// build result map
+	resourceKeys.map(key => {
+	  apiResultMap[key] = cacheMap[key].map((item, index) => {
+	    return !item && index
+	  }).filter(i => { 
+	    return typeof i === 'number'
+	   })
+	})
+	return apiResultMap
+}
+
+// merges api results in to the cacheMap
+// merges api results in to the cacheMap
+function mergeApiResults(cacheResults, apiResults) {
+	let resourceKeys = Object.keys(cacheResults)
+
+	resourceKeys.forEach(key => {
+	  apiResults[key].forEach((item, index) => {
+	    let mapIndex = apiResultMap[key][index]
+	    cacheResults[key][mapIndex] = item
+	  })
+	})
+}
+
+
+function isPrimitive(arg) {
+	if(arg == null) { return true } // note == includes undefined
+  	
+  	let type = typeof arg;
+  	return type !== 'object' && type !== 'function';
 }
