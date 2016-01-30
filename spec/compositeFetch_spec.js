@@ -37,7 +37,7 @@ describe('Conductor.fetch', () => {
 		spyOn(apiClient.composite, 'query').and.callThrough()
 
 		// temp futz with cache...
-		cache.put('1716976019', {say:"hello"}, 5000)
+		cache.put('-1716976019', {say:"hello"}, 5000)
 
 		Conductor.fetch(apiClient, query, params, options).then(response => {
 			let expectedApiRequest = {

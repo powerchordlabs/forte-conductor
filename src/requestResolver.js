@@ -7,27 +7,46 @@ export default RequestResolver
 function RequestResolver(api, query, queryParams, options){
 	this._api = api
 	this._compositePlan = Conductor.parseQuery(query, queryParams)
-	this._executionPlan = createExecutionPlan(this._compositePlan.request, options)
-	debug('_executionPlan %j', this._executionPlan)
+	this._resolverPlan = createResolverPlan(this._compositePlan.request, options)
+	debug('_resolverPlan %j', this._resolverPlan)
 
 	return this
 }
 
 RequestResolver.prototype.resolve = function() {
+	let resolverPlan = this._resolverPlan
+
 	return new Promise((resolve, reject) => {
-		if(!this._executionPlan.hasExpiredItems){
-			let composedResponse = Conductor.composeResponse(this._compositePlan, this._executionPlan.results)
-			resolve(composeResponse)
+		if(!resolverPlan.hasExpiredItems){
+			let composedResponse = this.composeResponse(resolverPlan.results)
+			return resolve(composeResponse)
 		}
 
-		// todo make api call for uncached items
-		resolve('todo')
+		let request = resolverPlan.uncachedQueryRequest
+		debug('uncachedQueryRequest', request)
+
+		debug('api', this._api)
+		this._api.composite.query(request).then(response => {
+			// TODO, merge response into resolverPlan results
+			// and cache any cacheable items...
+debug('resolverPlan.results', resolverPlan.results)
+			let composedResponse = this.composeResponse(resolverPlan.results)
+			debug('composedResponse', composedResponse)
+			resolve(composedResponse)
+		}).catch(err => {
+			debug('api error', err)
+			reject(err)
+		})
 	})
+}
+
+RequestResolver.prototype.composeResponse = function (plan, results) {
+	return Conductor.composeResponse(this._compositePlan, results)
 }
 
 // returns a clone of the request with the queries replaced
 // with an object of their corresponding cache keys, values and durations
-function createExecutionPlan(request, options) {
+function createResolverPlan(request, options) {
   let hasExpiredItems = false
   let cacheMap = {}
   let results = {}
