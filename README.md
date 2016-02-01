@@ -1,16 +1,25 @@
 # forte-conductor
 
-TODO: build this readme  
-TODO: migrate existing codebase to this repo
+A package for composing and resolving forte-api composite quueries.
+
+## Install
+
+`$ npm i -S forte-conductor`
 
 ## API
 
 ### Methods
 
-#### Conductor.fetch(query[, options]) : {promise (composedResponse) => {}}
+#### Conductor.fetch(apiClient, query, params, [, options]) : {promise (composedResponse) => {}}
 
+* `apiClient: {Object}`  
+A `forte-api` client instance or an object that conforms to the following interface can also be supplied:
+    * `composite.query(query)`  
+    Returns a promise that returns teh results of a composite api call.
 * `query: {ConductorQuery}`  
 The query to parse, fetch and compose a response for.  
+* `params: {object}`  
+The params to merge in to the query(s)
 * `options: {object}`  
   * `cacheEnabled: {bool}`  
   Controls whether queries with a `.Cache()` setting are actually cached. This is useful for turning off caching globally on the server/client.  
@@ -23,360 +32,61 @@ The query to parse, fetch and compose a response for.
 
 Returns a new ConductorQuery.
 
+* `resource: {string}`  
+The name of the api resource to fetch with this query. See the API GO Docs fro supported resources.
+
+The query instance supports filtering, singularity and caching using the following chainable methods:
+
+##### query.params(object)
+
+Specifies the parameters that are used to filter the resource by.
+
+``` js
+let query = Conductor.query('locations').params({type: ':typeParam'})
+let params = { typeParam: 'atype'}
+Conductor.fetch(api, query, params)
+```
+
+##### query.one()
+
+Restricts the API response to a single item.
+
+``` js
+Conductor.query('locations').params({active: true}).one()
+```
+
+##### query.cache(duration[, interval])
+
+``` js
+import time from 'forte-conductor/time'
+
+Conductor.query('locations').params({active: true}).one().cache(300) // seconds
+
+Conductor.query('locations').params({active: true}).one().cache(1, time.hour) // hours
+```
+
 #### Conductor.getQuery(component)
 
-#### Conductor.parseQuery(conductorQuery, values) 
+Retrieves the `query` property from the specified Component. Typically used when retrieving a query on behalf of a child component:
 
-#### Conductor.composeResponse(CompositePlan, compositeData) : {object}
+``` js
 
+var React = require('react');
 
-## Original notes
+// Platform Imports
+var Conductor = require('powerchord-conductor');
 
-CONDUCTOR (powerchordinc/conductor)
-* add ConductorContainer component
-    * props:
-        * apiClient: // an instance of the api package
-        * onFetched: composedData => {} // optional
-        * onFailure: requestError => {} // optional
-* utilize ‘api’ package i.e. api.composite()
-* add .Cache property to query
-* create cache manager (add, invalidate…)
-* server-side removes queries for non-public resources e.g: orders…
-* cache key includes canonicalAddress
-* track errors via ‘api’ package, 
-    * i.e. api.log.error(msg, e)
-* look into removal of ‘queryResults’ prop in favor of just returning props as specified in static.query
-* look into memcache, redis, groupcache as providers
+// Children Imports
+var Header = require('./Header');
+var Footer = require('./Footer');
 
-### query example:
-```
-{
-  "screen": {
-    "tenant": {
-      "_resourceDefined": true,
-      "_resource": "tenants",
-      "_paramsRequested": true,
-      "_params": {
-        "activeContext": true
-      },
-      "_singular": true
-    },
-    "storeNewsContent": {
-      "_resourceDefined": true,
-      "_resource": "content",
-      "_paramsRequested": true,
-      "_params": {
-        "key": "cmssn"
-      },
-      "_singular": true
-    },
-    "fma": {
-      "_resourceDefined": true,
-      "_resource": "content-fma",
-      "_paramsRequested": false,
-      "_params": {
-        
-      },
-      "_singular": false
-    },
-    "featuredProducts": {
-      "_resourceDefined": true,
-      "_resource": "products",
-      "_paramsRequested": true,
-      "_params": {
-        "featured": true
-      },
-      "_singular": false
-    }
-  },
-  "layout": {
-    "footer": {
-      "primaryLocation": {
-        "_resourceDefined": true,
-        "_resource": "locations",
-        "_paramsRequested": true,
-        "_params": {
-          "isPrimary": true
-        },
-        "_singular": true
-      },
-      "news": {
-        "_resourceDefined": true,
-        "_resource": "content",
-        "_paramsRequested": true,
-        "_params": {
-          "key": "cmhp"
-        },
-        "_singular": true
-      },
-      "newsletter": {
-        "_resourceDefined": true,
-        "_resource": "content",
-        "_paramsRequested": true,
-        "_params": {
-          "key": "cmnl"
-        },
-        "_singular": true
-      }
-    },
-    "header": {
-      "primaryNavigation": {
-        "locations": {
-          "_resourceDefined": true,
-          "_resource": "locations",
-          "_paramsRequested": false,
-          "_params": {
-            
-          },
-          "_singular": false
-        },
-        "productCategoryList": {
-          "_resourceDefined": true,
-          "_resource": "product-categories",
-          "_paramsRequested": false,
-          "_params": {
-            
-          },
-          "_singular": false
-        }
-      },
-      "tenant": {
-        "_resourceDefined": true,
-        "_resource": "tenants",
-        "_paramsRequested": true,
-        "_params": {
-          "activeContext": true
-        },
-        "_singular": true
-      }
+var layout = React.createClass({
+  statics: {
+    query: {
+      footer: Conductor.getQuery(Footer), // get query from Footer
+      header: Conductor.getQuery(Header)  // get query from Header
     }
   }
-}
-```
-
-### composite example:
-
-```
-{
-  "composition": {
-    "tenants": [
-      {
-        "plan": {
-          "params": {
-            "activeContext": true
-          },
-          "singular": true
-        },
-        "conduit": [
-          [
-            "screen",
-            "tenant"
-          ],
-          [
-            "layout",
-            "header",
-            "tenant"
-          ]
-        ]
-      }
-    ],
-    "content": [
-      {
-        "plan": {
-          "params": {
-            "key": "cmssn"
-          },
-          "singular": true
-        },
-        "conduit": [
-          [
-            "screen",
-            "storeNewsContent"
-          ]
-        ]
-      },
-      {
-        "plan": {
-          "params": {
-            "key": "cmhp"
-          },
-          "singular": true
-        },
-        "conduit": [
-          [
-            "layout",
-            "footer",
-            "news"
-          ]
-        ]
-      },
-      {
-        "plan": {
-          "params": {
-            "key": "cmnl"
-          },
-          "singular": true
-        },
-        "conduit": [
-          [
-            "layout",
-            "footer",
-            "newsletter"
-          ]
-        ]
-      }
-    ],
-    "content-fma": [
-      {
-        "plan": {
-          "params": {
-            
-          },
-          "singular": false
-        },
-        "conduit": [
-          [
-            "screen",
-            "fma"
-          ]
-        ]
-      }
-    ],
-    "products": [
-      {
-        "plan": {
-          "params": {
-            "featured": true
-          },
-          "singular": false
-        },
-        "conduit": [
-          [
-            "screen",
-            "featuredProducts"
-          ]
-        ]
-      }
-    ],
-    "locations": [
-      {
-        "plan": {
-          "params": {
-            "isPrimary": true
-          },
-          "singular": true
-        },
-        "conduit": [
-          [
-            "layout",
-            "footer",
-            "primaryLocation"
-          ]
-        ]
-      },
-      {
-        "plan": {
-          "params": {
-            
-          },
-          "singular": false
-        },
-        "conduit": [
-          [
-            "layout",
-            "header",
-            "primaryNavigation",
-            "locations"
-          ]
-        ]
-      }
-    ],
-    "product-categories": [
-      {
-        "plan": {
-          "params": {
-            
-          },
-          "singular": false
-        },
-        "conduit": [
-          [
-            "layout",
-            "header",
-            "primaryNavigation",
-            "productCategoryList"
-          ]
-        ]
-      }
-    ]
-  },
-  "request": {
-    "tenants": [
-      {
-        "params": {
-          "activeContext": true
-        },
-        "singular": true
-      }
-    ],
-    "content": [
-      {
-        "params": {
-          "key": "cmssn"
-        },
-        "singular": true
-      },
-      {
-        "params": {
-          "key": "cmhp"
-        },
-        "singular": true
-      },
-      {
-        "params": {
-          "key": "cmnl"
-        },
-        "singular": true
-      }
-    ],
-    "content-fma": [
-      {
-        "params": {
-          
-        },
-        "singular": false
-      }
-    ],
-    "products": [
-      {
-        "params": {
-          "featured": true
-        },
-        "singular": false
-      }
-    ],
-    "locations": [
-      {
-        "params": {
-          "isPrimary": true
-        },
-        "singular": true
-      },
-      {
-        "params": {
-          
-        },
-        "singular": false
-      }
-    ],
-    "product-categories": [
-      {
-        "params": {
-          
-        },
-        "singular": false
-      }
-    ]
-  }
-}
+  ...
+})
 ```

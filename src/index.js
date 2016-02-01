@@ -1,8 +1,8 @@
 import ConductorQuery from './conductorQuery'
 import CompositePlan from './compositePlan'
 import Composer from './composer'
-//import CompositeFetch from './compositeFetch'
 import CompositeRequestResolver from './compositeRequestResolver'
+
 const debug = require('debug')('forte-conductor')
 
 export default new Conductor();
