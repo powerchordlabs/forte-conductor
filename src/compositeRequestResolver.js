@@ -1,34 +1,49 @@
 import Conductor from './'
+import { InvalidArgumentError } from './util'
 import cache from 'memory-cache'
-const debug = require('debug')('forte-conductor:RequestResolver')
+const debug = require('debug')('forte-conductor:CompositeRequestResolver')
 
-export default RequestResolver
+export default CompositeRequestResolver
 
-function RequestResolver(api, query, queryParams, options){
+const defaultOptions = {
+	cachePrefix: '',
+	cacheEnabled: true
+}
+
+function CompositeRequestResolver(api, query, queryParams, options){
+	debug('CompositeRequestResolver arguments %j', api, query, queryParams, options)
+
+	verifyConfig(api, options)
+
+	options = {...defaultOptions, ...options}
+
 	this._api = api
 	this._compositePlan = Conductor.parseQuery(query, queryParams)
 	this._resolverPlan = createResolverPlan(this._compositePlan.request, options)
-	debug('_resolverPlan %j', this._resolverPlan)
 
 	return this
 }
 
-RequestResolver.prototype.resolve = function() {
+CompositeRequestResolver.prototype.resolve = function() {
 	let resolverPlan = this._resolverPlan
 
 	return new Promise((resolve, reject) => {
 		if(!resolverPlan.hasExpiredItems){
 			let composedResponse = this.composeResponse(this._compositePlan, resolverPlan.results)
-			return resolve(composeResponse)
+			debug('composedResponse', composedResponse)
+
+			return resolve(composedResponse)
 		}
 
 		let request = resolverPlan.uncachedQueryRequest
-		debug('uncachedQueryRequest', request)
 
 		this._api.composite.query(request).then(response => {
 
+			debug('premerge: resolverPlan.results', resolverPlan.results)
+
 			mergeAndCacheResponse(resolverPlan, response)
-			debug('resolverPlan.results', resolverPlan.results)
+			
+			debug('postmerge: resolverPlan.results', resolverPlan.results)
 
 			let composedResponse = this.composeResponse(this._compositePlan, resolverPlan.results)
 			debug('composedResponse', composedResponse)
@@ -41,7 +56,7 @@ RequestResolver.prototype.resolve = function() {
 	})
 }
 
-RequestResolver.prototype.composeResponse = function (plan, results) {
+CompositeRequestResolver.prototype.composeResponse = function (plan, results) {
 	return Conductor.composeResponse(this._compositePlan, results)
 }
 
@@ -115,13 +130,21 @@ function createResolverPlan(request, options) {
     })
   })
   
-  return { hasExpiredItems, cacheMap, results, uncachedQueryRequest, uncachedQueryResultsMap }
+  let plan =  { hasExpiredItems, cacheMap, results, uncachedQueryRequest, uncachedQueryResultsMap }
+  debug('resolverPlan %j', plan)
+
+  return plan
 }
 
 // generates a numeric hash code for the specified value
 let getHashCode = function(value){
 	var hash = 0;
-	if (value.length === 0) return hash;
+
+	/* istanbul ignore next */
+	if (value.length === 0) { 
+		return hash;
+	}
+
 	for (var i = 0; i < value.length; i++) {
 		let char = value.charCodeAt(i);
 		var hash = ((hash<<5)-hash)+char;
@@ -142,4 +165,26 @@ function isPrimitive(arg) {
   	
   	let type = typeof arg;
   	return type !== 'object' && type !== 'function';
+}
+
+
+/* 
+ * Verifcations
+ */
+function argumentError(name) {
+	throw new InvalidArgumentError(name)
+}
+
+function verifyConfig(apiClient, options) {
+	if(typeof apiClient !== 'object') {
+		argumentError('apiClient')
+	}
+
+	if(typeof apiClient.composite !== 'object') {
+		argumentError('apiClient.composite')
+	}
+
+	if(typeof apiClient.composite.query !== 'function') {
+		argumentError('apiClient.composite.query')
+	}
 }
