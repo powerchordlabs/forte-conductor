@@ -18,24 +18,54 @@ RequestResolver.prototype.resolve = function() {
 
 	return new Promise((resolve, reject) => {
 		if(!resolverPlan.hasExpiredItems){
-			let composedResponse = this.composeResponse(resolverPlan.results)
+			let composedResponse = this.composeResponse(this._compositePlan, resolverPlan.results)
 			return resolve(composeResponse)
 		}
 
 		let request = resolverPlan.uncachedQueryRequest
 		debug('uncachedQueryRequest', request)
 
-		debug('api', this._api)
 		this._api.composite.query(request).then(response => {
 			// TODO, merge response into resolverPlan results
 			// and cache any cacheable items...
-debug('resolverPlan.results', resolverPlan.results)
-			let composedResponse = this.composeResponse(resolverPlan.results)
+			
+			debug('response', response)
+
+			debug('resolverPlan.results', resolverPlan.results)
+			mergeFetchResponse(resolverPlan, response)
+			debug('resolverPlan.results', resolverPlan.results)
+
+			let composedResponse = this.composeResponse(this._compositePlan, resolverPlan.results)
 			debug('composedResponse', composedResponse)
 			resolve(composedResponse)
 		}).catch(err => {
 			debug('api error', err)
 			reject(err)
+		})
+	})
+}
+
+// merge the api response in to the cacheResults
+function mergeFetchResponse(resolverPlan, response) {
+	let map = resolverPlan.uncachedQueryResultsMap
+	let cacheResults = resolverPlan.results
+	let request = resolverPlan.uncachedQueryRequest
+
+	let responseKeys = Object.keys(response)
+	responseKeys.forEach(resource => {
+		response[resource].forEach((item, index) => {
+			
+			let mapIndex = map[resource][index].index
+			cacheResults[resource][mapIndex] = item
+			
+			// TODO: add to cache if specifed
+			let query = request[resource][mapIndex]
+			if(query.cache > 0) {
+				// set cache
+				let key = map[resource][index].cacheKey
+				cache.put(key, item, query.cache)
+				debug(`cache.put(${key}, ${JSON.stringify(item)}, ${query.cache})`)
+			}
 		})
 	})
 }
@@ -84,7 +114,7 @@ function createResolverPlan(request, options) {
       
       if(!mapEntry.wasCached){
         uncachedQueryRequest[resource].push(mapEntry.query)
-        uncachedQueryResultsMap[resource].push(i)
+        uncachedQueryResultsMap[resource].push({ cacheKey, index: i })
       }
     })
   })

@@ -19,15 +19,11 @@ function fetch(api, query, queryParams, options){
 
 	return resolver.resolve()
 
-
-
-	
-
-	return new Promise((resolve, reject) => {
+	/*return new Promise((resolve, reject) => {
 		let compositePlan = Conductor.parseQuery(query, queryParams)
 		debug('compositePlan\n%j\n', compositePlan)
 
-		// 1. get existing cachedResults, with nulls for new or expired queries
+		// 1. build map of cached results and uncachedQueries
 		let cacheMap = buildCacheMap(compositePlan.request, options.cachePrefix)
 		debug('cacheMap\n%j\n', cacheMap)
 
@@ -37,10 +33,8 @@ function fetch(api, query, queryParams, options){
 			let composedResponse = Conductor.composeResponse(compositePlan, cachedResults)
 			return resolve(composedResponse)
 		}
-
-		// 3. build new request for non-cached items
 		
-		// 4. fetch non-cached items
+		// 3. fetch non-cached items
 		api.composite.query(staleQueries)
 			.then(response => {
 
@@ -59,5 +53,5 @@ function fetch(api, query, queryParams, options){
 				// TODO: what do we do when some items were cached, but the api call fails?
 				reject(err)
 			})
-	})
+	})*/
 }

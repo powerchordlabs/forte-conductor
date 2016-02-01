@@ -27,9 +27,9 @@ describe('Conductor.fetch', () => {
 			cacheEnabled: true
 		}
 
-		let apiClient = apiMockFactory()
+		let apiClient = apiMockFactory({locations: [{id:1}]})
 		let query = { 
-			locationsA: Conductor.query('locations').params({ _status: ':status'}).one(),
+			locationsA: Conductor.query('locations').params({ _status: ':status'}).one().cache(360),
 			locationsB: Conductor.query('locations').params({ _status: ':status', alt: true}).one().cache(1)
 		}
 		let params = { status: 'active'}
