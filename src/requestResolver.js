@@ -26,27 +26,27 @@ RequestResolver.prototype.resolve = function() {
 		debug('uncachedQueryRequest', request)
 
 		this._api.composite.query(request).then(response => {
-			// TODO, merge response into resolverPlan results
-			// and cache any cacheable items...
-			
-			debug('response', response)
 
-			debug('resolverPlan.results', resolverPlan.results)
-			mergeFetchResponse(resolverPlan, response)
+			mergeAndCacheResponse(resolverPlan, response)
 			debug('resolverPlan.results', resolverPlan.results)
 
 			let composedResponse = this.composeResponse(this._compositePlan, resolverPlan.results)
 			debug('composedResponse', composedResponse)
+			
 			resolve(composedResponse)
 		}).catch(err => {
-			debug('api error', err)
+			debug('query err', err)
 			reject(err)
 		})
 	})
 }
 
-// merge the api response in to the cacheResults
-function mergeFetchResponse(resolverPlan, response) {
+RequestResolver.prototype.composeResponse = function (plan, results) {
+	return Conductor.composeResponse(this._compositePlan, results)
+}
+
+// merge the api response in to the cacheResults, and 
+function mergeAndCacheResponse(resolverPlan, response) {
 	let map = resolverPlan.uncachedQueryResultsMap
 	let cacheResults = resolverPlan.results
 	let request = resolverPlan.uncachedQueryRequest
@@ -68,10 +68,6 @@ function mergeFetchResponse(resolverPlan, response) {
 			}
 		})
 	})
-}
-
-RequestResolver.prototype.composeResponse = function (plan, results) {
-	return Conductor.composeResponse(this._compositePlan, results)
 }
 
 // returns a clone of the request with the queries replaced
