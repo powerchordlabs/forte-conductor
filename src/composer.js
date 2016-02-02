@@ -1,4 +1,4 @@
-module.exports = Composition;
+export default Composition;
 
 /**
  * Composition transforms a composite server response into the structure

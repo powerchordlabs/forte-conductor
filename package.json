@@ -4,15 +4,24 @@
   "verson": "1.0.0.0",
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
-  "main": "src/index.js",
+  "main": "lib/index",
   "scripts": {
-    "test": "jasmine JASMINE_CONFIG_PATH=test/jasmine.json"
-  },
-  "dependencies": {
-    "object.assign": "^3.0.0"
+    "build": "babel -d lib/ src/",
+    "test": "jasmine",
+    "cover": "babel-node node_modules/.bin/isparta cover --x **/spec/** node_modules/jasmine/bin/jasmine.js"
   },
   "devDependencies": {
+    "babel-cli": "^6.4.5",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-2": "^6.3.13",
+    "babel-register": "^6.4.3",
+    "isparta": "^4.0.0",
+    "istanbul": "^0.4.2",
     "jasmine": "^2.3.2",
     "jasmine-reporters": "^2.0.7"
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "memory-cache": "^0.1.4"
   }
 }

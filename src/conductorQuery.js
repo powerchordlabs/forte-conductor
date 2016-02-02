@@ -1,6 +1,6 @@
-var assign = Object.assign || require('object.assign');
+import time from './time'
 
-module.exports = ConductorQuery;
+export default ConductorQuery
 
 /**
  * ConductorQuery constructs a new ConductorQuery for the resource specified.
@@ -13,6 +13,7 @@ function ConductorQuery(resource) {
   this._paramsRequested = false;
   this._params = {};
   this._singular = false;
+  this._cacheMilliseconds = 0;
 
   return this;
 }
@@ -35,7 +36,7 @@ ConductorQuery.prototype.params = function(params) {
   // It's important to determine if we need to do much work at all.
   if (params && typeof params == "object" && Object.keys(params).length > 0) {
     this._paramsRequested = true;
-    this._params = assign({}, params);
+    this._params = {...params};
   }
 
   return this;
@@ -70,7 +71,7 @@ ConductorQuery.prototype.getParams = function() {
  * instead of an array of resources.
  */
 ConductorQuery.prototype.getPlan = function(values) {
-  var params = assign({}, this.getParams());
+  var params = {...this.getParams()}
 
   if (values && typeof values == 'object' && Object.keys(values).length > 0) {
     // Duplicate our params so that we can manipulate them without impacting
@@ -98,7 +99,27 @@ ConductorQuery.prototype.getPlan = function(values) {
     resource: this._resource,
     plan: {
       params: params,
-      singular: this._singular
+      singular: this._singular,
+      cache: this._cacheMilliseconds
     }
   };
+}
+
+/**
+ * Sets the cache duration for this query.
+ * @param {object} duration The duration to cache this query
+ * @param {object} interval The interval, in milliseconds, to calculate the cache duration. 
+ * You can use Conductor.time properties for ease of use: e.g. <code>query.cache(5, time.seconds)</code>
+ * Default: time.seconds
+ */
+ConductorQuery.prototype.cache = function(duration, interval) {
+  // require duration, and undefined or valid interval...
+  if(typeof duration === 'number' && (!interval || typeof interval === 'number')){
+    // set interval default if undefined
+    if(!interval) { interval = time.seconds }
+
+    this._cacheMilliseconds = Math.floor(duration*interval)
+  }
+  
+  return this;
 }

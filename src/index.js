@@ -1,8 +1,12 @@
-var ConductorQuery = require('./conductorQuery');
-var CompositePlan = require('./compositePlan');
-var Composer = require('./composer');
+import ConductorQuery from './conductorQuery'
+import CompositePlan from './compositePlan'
+import Composer from './composer'
+import CompositeRequestResolver from './compositeRequestResolver'
 
-module.exports = new Conductor();
+const debug = require('debug')('forte-conductor')
+
+export default new Conductor();
+
 function Conductor() {};
 
 /**
@@ -54,4 +58,11 @@ Conductor.prototype.parseQuery = function(conductorQuery, values) {
 **/
 Conductor.prototype.composeResponse = function(CompositePlan, compositeData) {
   return Composer(CompositePlan, compositeData);
+}
+
+/*
+ * Executes a query against the api and returns the results, possibly the internal cache.
+ */
+Conductor.prototype.fetch = function(apiClient, query, queryParams, options) {
+ 	return new CompositeRequestResolver(apiClient, query, queryParams, options).resolve()
 }
