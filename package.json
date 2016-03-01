@@ -1,14 +1,15 @@
 {
-  "name": "forte-conductor",
+  "name": "@powerchord/forte-conductor",
+  "verson": "0.0.0-semantically-released",
   "private": true,
-  "verson": "1.0.0.0",
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
   "main": "lib/index",
   "scripts": {
     "build": "babel -d lib/ src/",
     "test": "jasmine",
-    "cover": "babel-node node_modules/.bin/isparta cover --x **/spec/** node_modules/jasmine/bin/jasmine.js"
+    "cover": "babel-node node_modules/.bin/isparta cover --x **/spec/** node_modules/jasmine/bin/jasmine.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
@@ -18,10 +19,15 @@
     "isparta": "^4.0.0",
     "istanbul": "^0.4.2",
     "jasmine": "^2.3.2",
-    "jasmine-reporters": "^2.0.7"
+    "jasmine-reporters": "^2.0.7",
+    "semantic-release": "^4.3.5"
   },
   "dependencies": {
     "debug": "^2.2.0",
     "memory-cache": "^0.1.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/powerchordinc/forte-conductor.git"
   }
 }
