@@ -1,7 +1,6 @@
 {
   "name": "@powerchord/forte-conductor",
   "verson": "0.0.0-semantically-released",
-  "private": true,
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
   "main": "lib/index",
