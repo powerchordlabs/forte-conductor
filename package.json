@@ -3,6 +3,7 @@
   "verson": "0.0.0-semantically-released",
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
+  "license": "ISC",
   "main": "lib/index",
   "scripts": {
     "build": "babel -d lib/ src/",
