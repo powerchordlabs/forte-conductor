@@ -41,7 +41,7 @@ CompositeRequestResolver.prototype.resolve = function() {
 
 			debug('premerge: resolverPlan.results', resolverPlan.results)
 
-			mergeAndCacheResponse(resolverPlan, response)
+			mergeAndCacheResponse(resolverPlan, response.body)
 			
 			debug('postmerge: resolverPlan.results', resolverPlan.results)
 

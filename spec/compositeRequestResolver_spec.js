@@ -11,7 +11,7 @@ const apiMockFactory = (result) => {
 			query: query => 
 			{
 				return new Promise((resolve, reject) => {
-					return resolve(result || {})
+					return resolve({ body: (result || {}) })
 				})
 			}
 		}
