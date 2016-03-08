@@ -1,7 +1,3 @@
-export const InvalidArgumentError = function InvalidArgumentError(message) {
-  this.name = 'InvalidArgumentError';
-  this.message = message;
-}
+require('extend-error')
 
-InvalidArgumentError.prototype = Object.create(Error.prototype);
-InvalidArgumentError.prototype.constructor = InvalidArgumentError;
+export const InvalidArgumentError = Error.extend('InvalidArgument');
