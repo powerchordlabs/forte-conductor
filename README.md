@@ -1,4 +1,4 @@
-# forte-conductor
+# forte-conductor [![Travis][build-badge]][build] [![npm package][npm-badge]][npm]
 
 A package for composing and resolving forte-api composite quueries.
 
@@ -90,3 +90,9 @@ var layout = React.createClass({
   ...
 })
 ```
+
+[build-badge]: https://img.shields.io/travis/powerchordlabs/forte-conductor/master.svg?style=flat-square
+[build]: https://travis-ci.org/powerchordlabs/forte-conductor
+
+[npm-badge]: https://img.shields.io/npm/v/forte-conductor.svg?style=flat-square
+[npm]: https://www.npmjs.org/package/forte-conductor
