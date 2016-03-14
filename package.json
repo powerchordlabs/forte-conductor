@@ -1,5 +1,5 @@
 {
-  "name": "@powerchordlabs/forte-conductor",
+  "name": "forte-conductor",
   "verson": "0.0.0-semantically-released",
   "description": "Compose data for components inspired by Facebook Relay.",
   "author": "Powerchord, Inc",
