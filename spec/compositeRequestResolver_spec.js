@@ -180,7 +180,7 @@ describe('Conductor.fetch', () => {
 			let end = +new Date();
 			let diff = end - start;
 
-			expect(diff).toBeLessThan(5)
+			expect(diff).toBeLessThan(10)
 
 			debug('complex query duration', diff)
 			
